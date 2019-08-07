@@ -1,0 +1,17 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rules": {
+    "ordered-imports": false,
+    "interface-over-type-literal": false,
+    "member-access": false,
+    "object-literal-sort-keys": false,
+    "no-console": [true, "log", "bebug"]
+  },
+  "jsRules": {
+    "no-console": [true, "log", "bebug"]
+  },
+  "linterOptions": {
+    "exclude": ["node_modules/**/*.ts", "dist/**/*.ts"]
+  }
+}
