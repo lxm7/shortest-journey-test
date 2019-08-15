@@ -13,10 +13,9 @@ const RouteEnd = ({
   journeyIndex
 }) => (
   <div
-    className={`route__option route__option--relative ${activeCss(active)}`}
+    className={`route__option ${activeCss(active)}`}
     onClick={e => onClickRouteEnd(e, stop, position)}
   >
-    {journeyIndex > -1 && <span className="route__order">{journeyIndex}</span>}
     {stop}
   </div>
 );

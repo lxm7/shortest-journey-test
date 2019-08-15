@@ -12,6 +12,7 @@ export type IState = {
   routes: any;
   active: object;
   fastest: any;
+  cy: any;
 };
 
 class App extends Component<{}, IState> {
@@ -21,14 +22,18 @@ class App extends Component<{}, IState> {
     active: {
       start: { A: true },
       end: { E: true }
-    }
+    },
+    cy: {}
   };
 
   componentDidMount() {
     this.updateRoutes();
+
+    // console.log(this.cy.getEdges())
   }
 
-  onClickRouteEnd = (_, stop, position) => {
+  onClickRouteEnd = (e, stop, position) => {
+    e.persist();
     this.setState(
       (prevState: IState) => ({
         active: {
@@ -91,9 +96,11 @@ class App extends Component<{}, IState> {
               }
             }
           ]}
-          cy={cy => {
-            this.cy = cy;
+          cy={cyRef => {
+            this.cyRef = cyRef;
           }}
+          zoomingEnabled={false}
+          autoungrabify={true}
           layout={{ name: "random" }}
           style={{ width: "100%", height: "400px" }}
           elements={elements}
@@ -101,24 +108,43 @@ class App extends Component<{}, IState> {
 
         <div style={{ marginBottom: "2em" }}></div>
 
-        {["start", "end"].map(position => (
-          <div key={position} className="route__end">
-            {Object.keys(adjacencyGraph).map((stop, i) => {
+        <div className="flex__inline">
+          <div style={{ flex: 1 }}>
+            {["start", "end"].map(position => {
               return (
-                <RouteEnd
-                  key={i}
-                  index={i}
-                  stop={stop}
-                  position={position}
-                  active={this.state.active[position][stop]}
-                  onClickRouteEnd={this.onClickRouteEnd}
-                  journeyIndex={this.state.fastest.indexOf(stop)}
-                  fastestRoute={this.state.fastest}
-                />
+                <div key={position} className="route__end">
+                  {Object.keys(adjacencyGraph).map((stop, i) => {
+                    return (
+                      <RouteEnd
+                        key={i}
+                        index={i}
+                        stop={stop}
+                        position={position}
+                        active={this.state.active[position][stop]}
+                        onClickRouteEnd={this.onClickRouteEnd}
+                      />
+                    );
+                  })}
+                </div>
               );
             })}
           </div>
-        ))}
+
+          <div style={{ width: "33.33%" }}>
+            <h3>Shortest route:</h3>
+
+            {R.dropLast(1, this.state.fastest).map((stop: any[], i: number) => {
+              console.log(stop);
+              return (
+                <div className="route__option" key={i}>
+                  <span>{stop}</span>
+                </div>
+              );
+            })}
+
+            <h3>Distance: {R.last(this.state.fastest)}</h3>
+          </div>
+        </div>
 
         <h3>Possible routes:</h3>
 

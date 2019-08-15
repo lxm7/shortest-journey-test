@@ -8,12 +8,12 @@ export type RouteListProps = {
 const RouteList: React.SFC<RouteListProps> = ({ stops, distance }) => (
   <div className="route">
     {stops.map((stop, i) => (
-      <div key={i}>
+      <span style={{ marginRight: "0.5em" }} key={i}>
         <span>{stop}</span>
-      </div>
+      </span>
     ))}
 
-    <div className="route__distance">Distance: {distance} </div>
+    <span className="route__distance">Distance: {distance} </span>
   </div>
 );
 

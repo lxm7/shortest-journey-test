@@ -3,12 +3,8 @@
   display: inline-block;
   cursor: pointer;
   border: 1px solid #ccc;
-  position: absolute;
   height: 50px;
   width: 50px;
-}
-
-.route__option--relative {
   position: relative;
 }
 
