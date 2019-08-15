@@ -1,87 +1,146 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from "react";
+import * as R from "ramda";
+import LineTo, { Line } from "react-lineto";
 
-import Select from '../components/Select';
-import RouteList from '../components/RouteList';
-import {
-  findAllRoutes,
-  getRoutesWithDistances,
-  addTotalDistanceFromRoutes,
-} from '../utils';
-import {adjacencyGraph, DistanceRow} from '../constants';
+import RouteList from "../components/RouteList";
+import RouteEnd from "../components/RouteEnd";
+
+import { findAllRoutes } from "../utils";
+import { adjacencyGraph, graph } from "../constants";
+import { validate } from "@babel/types";
 
 export type IState = {
-  selectedRoute: {
-    start: string;
-    end: string;
-  };
   routes: any;
+  active: object;
+  fastest: any;
 };
+
+const setEdgeAndWeight = (edge, weight) => ({ edge, weight });
 
 class App extends Component<{}, IState> {
   state = {
-    selectedRoute: {
-      start: 'A',
-      end: 'E'
-    },
     routes: [],
+    fastest: [],
+    active: {
+      start: { A: true },
+      end: { E: true }
+    }
   };
 
   componentDidMount() {
-    this.updateRoutes()
+    this.updateRoutes();
   }
+
+  onClickRouteEnd = (_, stop, position) => {
+    this.setState(
+      (prevState: IState) => ({
+        active: {
+          ...prevState.active,
+          [position]: { [stop]: true }
+        }
+      }),
+      () => this.updateRoutes()
+    );
+  };
 
   updateRoutes = () => {
-    const {selectedRoute: {start, end}} = this.state;
+    const {
+      active: { start, end }
+    } = this.state;
+    const routesRaw = findAllRoutes(
+      adjacencyGraph,
+      R.prop("true", R.invertObj(start)),
+      R.prop("true", R.invertObj(end))
+    );
+    // TODO - break out in to functional testable one-liners
+    const routes = routesRaw.reduce((acc, curr) => {
+      const distance = R.sum(curr.filter(n => !isNaN(n)));
+      const stops = curr.filter(n => n && isNaN(n));
+      const row = stops.concat(distance);
+      return [...acc, row];
+    }, []);
 
-    this.setState({
-      routes: findAllRoutes(adjacencyGraph, start, end), 
-    })
-  }
+    this.setState({ routes }, () => this.getFastestRoute());
+  };
 
-  handleLocationUpdate = (e: React.ChangeEvent<HTMLSelectElement>, position: string) => {
-    e.persist();
+  getFastestRoute = () =>
+    this.setState(prevState => ({ fastest: prevState.routes[0] }));
 
-    this.setState((prevState: IState) => ({
-      selectedRoute: {
-        ...prevState.selectedRoute,
-        [position]: e.target.value,
-      }
-    }), () => this.updateRoutes())
-  }
-  
   render() {
+    const adjacencyGraphArr = Object.keys(adjacencyGraph).map(key => ({
+      [key]: adjacencyGraph[key]
+    }));
+    const matchNode = node =>
+      graph.edges.reduce((c, v) => {
+        if (node !== v.from) return c;
+
+        return c.concat(v);
+      }, []);
+
     return (
-      <div className='App'>
+      <div className="App">
         <h3>Select start / end for route:</h3>
-        
-        {['start', 'end'].map((position, i) => (
-          <Select
-            key={i}
-            index={position}
-            options={Object.keys(adjacencyGraph)}
-            // @ts-ignore 
-            value={this.state.selectedRoute[position]}
-            updateValue={(e) => this.handleLocationUpdate(e, position)}
-          />
+
+        <div className="route__graph">
+          {graph.nodes.map(node => {
+            return (
+              <div className={`route__option route__option--${node.label}`}>
+                <div>{node.label}</div>
+
+                <span>
+                  {matchNode(node.label).map(edge => (
+                    <Fragment>
+                      <LineTo
+                        from={`route__option--${edge.from}`}
+                        to={`route__option--${edge.to}`}
+                        borderColor={"#eee"}
+                        // borderWidth='1px'
+                      />
+                      <span>{edge.weight}</span>
+                    </Fragment>
+                  ))}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {["start", "end"].map(position => (
+          <div key={position} className="route__end">
+            {Object.keys(adjacencyGraph).map((stop, i) => {
+              return (
+                <RouteEnd
+                  key={i}
+                  index={i}
+                  stop={stop}
+                  position={position}
+                  active={this.state.active[position][stop]}
+                  onClickRouteEnd={this.onClickRouteEnd}
+                  journeyIndex={this.state.fastest.indexOf(stop)}
+                  fastestRoute={this.state.fastest}
+                />
+              );
+            })}
+          </div>
         ))}
 
         <h3>Possible routes:</h3>
-        <div className='route-list'>
-          {getRoutesWithDistances(this.state.routes)
-            .sort((a: DistanceRow, b: DistanceRow) => addTotalDistanceFromRoutes(a) - addTotalDistanceFromRoutes(b))
-            .map((DistanceRow: DistanceRow[], i: number) => {
+
+        <div className="route__list">
+          {this.state.routes
+            .sort((a, b) => R.last(a) - R.last(b))
+            .map((row: any[], i: number) => {
               return (
                 <RouteList
                   key={i}
-                  DistanceRow={DistanceRow}
-                  distance={addTotalDistanceFromRoutes(DistanceRow)}
+                  stops={R.dropLast(1, row)}
+                  distance={R.last(row)}
                 />
-              )
-            })
-          }
+              );
+            })}
         </div>
       </div>
-    )
+    );
   }
 }
 

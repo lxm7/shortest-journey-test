@@ -18,6 +18,7 @@ code {
 
 .App {
   padding: 1em;
+  text-align: center;
 }
 
 .route {
@@ -28,6 +29,10 @@ code {
   margin-bottom: 1em;
   display: flex;
   justify-content: space-between;
+}
+
+.route__end {
+  padding: 1em;
 }
 
 .route__distance {

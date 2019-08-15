@@ -12,6 +12,6 @@
     "no-console": [true, "log", "bebug"]
   },
   "linterOptions": {
-    "exclude": ["node_modules/**/*.ts", "dist/**/*.ts"]
+    "exclude": ["node_modules/**/*.ts", "dist/**/*.ts",  "src/**/*.tsx",  "src/**/*.ts", "src/**/**/*.tsx"]
   }
 }

@@ -1,0 +1,89 @@
+.route__option {
+  padding: 1em;
+  display: inline-block;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  position: absolute;
+  height: 50px;
+  width: 50px;
+}
+
+.route__option--relative {
+  position: relative;
+}
+
+.route__option--arrow {
+  padding: 1em 0.5em;
+  display: inline-block;
+  border: 1px solid #ccc;
+}
+
+.route__option--active {
+  background: #81d8da;
+}
+
+.route__option--disabled {
+  background: #eee;
+  color: #aaa;
+}
+
+.route__order {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.route__stop-wrapper {
+  position: relative;
+}
+
+.route__arrow {
+  position: absolute;
+  top: 50%;
+  right: 0;
+}
+
+.route__graph {
+  position: relative;
+  height: 600px;
+}
+
+.route__option--A {
+  top: 10%;
+  left: 10%;
+}
+
+.route__option--B {
+  top: 10%;
+  left: 80%;
+}
+
+.route__option--C {
+  top: 30%;
+  left: 25%;
+}
+
+.route__option--D {
+  top: 45%;
+  left: 55%;
+}
+
+.route__option--E {
+  top: 65%;
+  left: 10%;
+}
+
+.route__option--F {
+  top: 70%;
+  left: 75%;
+}
+
+.route__option--G {
+  top: 90%;
+  left: 55%;
+}
+
+.route__option--H {
+  top: 80%;
+  left: 30%;
+}
