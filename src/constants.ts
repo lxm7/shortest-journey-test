@@ -54,6 +54,37 @@ export const adjacencyGraph: IAdjacencyGraph = {
   H: [{ node: "G", weight: 4 }, { node: "E", weight: 10 }]
 };
 
+export const elements = [
+  { data: { id: "A", label: "A" } },
+  { data: { id: "B", label: "B" } },
+  { data: { id: "C", label: "C" } },
+  { data: { id: "D", label: "D" } },
+  { data: { id: "E", label: "E" } },
+  { data: { id: "F", label: "F" } },
+  { data: { id: "G", label: "G" } },
+  { data: { id: "H", label: "H" } },
+  { data: { source: "A", target: "C", label: "Edge weight 2" } },
+  { data: { source: "B", target: "D", label: "4" } },
+  { data: { source: "B", target: "E", label: "7" } },
+  { data: { source: "C", target: "A", label: "2" } },
+  { data: { source: "C", target: "D", label: "1" } },
+  { data: { source: "C", target: "F", label: "4" } },
+  { data: { source: "D", target: "C", label: "1" } },
+  { data: { source: "D", target: "B", label: "4" } },
+  { data: { source: "D", target: "F", label: "1" } },
+  { data: { source: "D", target: "G", label: "2" } },
+  { data: { source: "E", target: "B", label: "7" } },
+  { data: { source: "E", target: "H", label: "10" } },
+  { data: { source: "F", target: "C", label: "4" } },
+  { data: { source: "F", target: "D", label: "1" } },
+  { data: { source: "F", target: "G", label: "3" } },
+  { data: { source: "G", target: "D", label: "2" } },
+  { data: { source: "G", target: "F", label: "3" } },
+  { data: { source: "G", target: "H", label: "4" } },
+  { data: { source: "H", target: "G", label: "4" } },
+  { data: { source: "H", target: "E", label: "10" } }
+];
+
 export const graph = {
   nodes: [
     { id: "A", label: "A", color: "red" },
@@ -88,3 +119,27 @@ export const graph = {
     { from: "H", to: "E", weight: 10 }
   ]
 };
+
+// <div className="route__graph">
+// {graph.nodes.map(node => {
+//   return (
+//     <div className={`route__option route__option--${node.label}`}>
+//       <div>{node.label}</div>
+
+//       <span>
+//         {matchNode(node.label).map(edge => (
+//           <Fragment>
+//             <LineTo
+//               from={`route__option--${edge.from}`}
+//               to={`route__option--${edge.to}`}
+//               borderColor={"#eee"}
+//               // borderWidth='1px'
+//             />
+//             <span>{edge.weight}</span>
+//           </Fragment>
+//         ))}
+//       </span>
+//     </div>
+//   );
+// })}
+// </div>

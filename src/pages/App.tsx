@@ -1,21 +1,18 @@
 import React, { Component, Fragment } from "react";
 import * as R from "ramda";
-import LineTo, { Line } from "react-lineto";
 
 import RouteList from "../components/RouteList";
 import RouteEnd from "../components/RouteEnd";
 
 import { findAllRoutes } from "../utils";
-import { adjacencyGraph, graph } from "../constants";
-import { validate } from "@babel/types";
+import { adjacencyGraph, graph, elements } from "../constants";
+import CytoscapeComponent from "react-cytoscapejs";
 
 export type IState = {
   routes: any;
   active: object;
   fastest: any;
 };
-
-const setEdgeAndWeight = (edge, weight) => ({ edge, weight });
 
 class App extends Component<{}, IState> {
   state = {
@@ -54,6 +51,7 @@ class App extends Component<{}, IState> {
     );
     // TODO - break out in to functional testable one-liners
     const routes = routesRaw.reduce((acc, curr) => {
+      // ts-lint:disable-line
       const distance = R.sum(curr.filter(n => !isNaN(n)));
       const stops = curr.filter(n => n && isNaN(n));
       const row = stops.concat(distance);
@@ -67,43 +65,41 @@ class App extends Component<{}, IState> {
     this.setState(prevState => ({ fastest: prevState.routes[0] }));
 
   render() {
-    const adjacencyGraphArr = Object.keys(adjacencyGraph).map(key => ({
-      [key]: adjacencyGraph[key]
-    }));
-    const matchNode = node =>
-      graph.edges.reduce((c, v) => {
-        if (node !== v.from) return c;
-
-        return c.concat(v);
-      }, []);
-
     return (
       <div className="App">
         <h3>Select start / end for route:</h3>
 
-        <div className="route__graph">
-          {graph.nodes.map(node => {
-            return (
-              <div className={`route__option route__option--${node.label}`}>
-                <div>{node.label}</div>
+        <CytoscapeComponent
+          stylesheet={[
+            {
+              selector: "node",
+              style: {
+                content: "data(data.task)",
+                width: 20,
+                height: 20,
+                shape: "rectangle"
+              }
+            },
+            {
+              selector: "edge",
+              style: {
+                width: 1,
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle",
+                "line-color": "#ccc",
+                "target-arrow-color": "red"
+              }
+            }
+          ]}
+          cy={cy => {
+            this.cy = cy;
+          }}
+          layout={{ name: "random" }}
+          style={{ width: "100%", height: "400px" }}
+          elements={elements}
+        />
 
-                <span>
-                  {matchNode(node.label).map(edge => (
-                    <Fragment>
-                      <LineTo
-                        from={`route__option--${edge.from}`}
-                        to={`route__option--${edge.to}`}
-                        borderColor={"#eee"}
-                        // borderWidth='1px'
-                      />
-                      <span>{edge.weight}</span>
-                    </Fragment>
-                  ))}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        <div style={{ marginBottom: "2em" }}></div>
 
         {["start", "end"].map(position => (
           <div key={position} className="route__end">
