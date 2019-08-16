@@ -85,50 +85,8 @@ export const findAllRoutes = (
   return allroutes;
 };
 
-// TODO - test
 const getTotalDistanceFromRoute = curr => R.sum(curr.filter(n => !isNaN(n)));
 const getStopsFromRoute = curr => curr.filter(n => n && isNaN(n));
-
-/*
- * Function getStops - When we have a subsequent destination in our stops hops, we'll keep it in the array to
- * start accumulating distances
- *
- * @param {array} rates list of currency rates
- * @param {index} current selected country e.g, "GBP"
- * @return {array} returns with array of stops or nodes included in a potential route
- *
- */
-// export const getStops = (array: string[], index: number) =>
-//   (typeof array[index + 1] !== "undefined") ? [array[index], array[index + 1]] : [];
-
-// /*
-// * Function getIntersectingStopsFromDistanceObject - Filter distance object with the stops
-// * that have both start and end stops intersecting, (length of 2)
-// *
-// * @param {array} stops - derived from getStops within our getAllStops reduce method.
-// * @return {array} returns stops that have both start and end stops intersecting (length of 2)
-// *
-// */
-// export const getIntersectingStopsFromDistanceObject = (stops: string[]) =>
-//   distances.filter((x: DistanceRow) =>
-//     R.length(R.intersection(stops, [x.start, x.end])) === 2)
-// /*
-// * Function getAllStops - Gets all stops within a given viable route to our destination
-// *
-// * @param {array} route - derived from getStops within our getAllStops reduce method.
-// * @return {array}
-// */
-// export const getAllStops = (route) =>
-//   route.reduce((result, value, index, array) =>
-//     [...result, ...getIntersectingStopsFromDistanceObject(getStops(array, index))], []);
-
-// /*
-// * Function getRoutesWithDistances - maps all routes to start operating on a single route
-// *
-// * @param {array} routes - derived from getStops within our getAllStops reduce method.
-// * @return {array}
-// */
-// export const getRoutesWithDistances = (routes) => routes.map(route => getAllStops(route));
 
 /*
  * Function addTotalDistanceFromRoutes - maps all routes to start operating on a single route

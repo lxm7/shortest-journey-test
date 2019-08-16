@@ -6,16 +6,23 @@
   height: 50px;
   width: 50px;
   position: relative;
+  z-index: 2;
+  background: white;
+  text-align: center;
+}
+
+.route__option--flat {
+  position: static;
 }
 
 .route__option--arrow {
   padding: 1em 0.5em;
   display: inline-block;
-  border: 1px solid #ccc;
 }
 
 .route__option--active {
-  background: #81d8da;
+  background: #9effe4;
+  border: 1px solid rgb(106, 223, 189);
 }
 
 .route__option--disabled {
@@ -41,7 +48,7 @@
 
 .route__graph {
   position: relative;
-  height: 600px;
+  height: 450px;
 }
 
 .route__option--A {
@@ -82,4 +89,8 @@
 .route__option--H {
   top: 80%;
   left: 30%;
+}
+
+.route__edge {
+  border-color: blue;
 }

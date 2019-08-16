@@ -1,18 +1,19 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import * as R from "ramda";
+import LineTo from "react-lineto";
 
 import RouteList from "../components/RouteList";
 import RouteEnd from "../components/RouteEnd";
 
 import { findAllRoutes } from "../utils";
-import { adjacencyGraph, graph, elements } from "../constants";
-import CytoscapeComponent from "react-cytoscapejs";
+import { adjacencyGraph, graph } from "../constants";
 
 export type IState = {
   routes: any;
   active: object;
   fastest: any;
   cy: any;
+  toolTip: object;
 };
 
 class App extends Component<{}, IState> {
@@ -23,6 +24,7 @@ class App extends Component<{}, IState> {
       start: { A: true },
       end: { E: true }
     },
+    toolTip: { A: false },
     cy: {}
   };
 
@@ -34,6 +36,9 @@ class App extends Component<{}, IState> {
 
   onClickRouteEnd = (e, stop, position) => {
     e.persist();
+
+    this.setState({ toolTip: { [stop]: false } });
+
     this.setState(
       (prevState: IState) => ({
         active: {
@@ -54,9 +59,9 @@ class App extends Component<{}, IState> {
       R.prop("true", R.invertObj(start)),
       R.prop("true", R.invertObj(end))
     );
+
     // TODO - break out in to functional testable one-liners
     const routes = routesRaw.reduce((acc, curr) => {
-      // ts-lint:disable-line
       const distance = R.sum(curr.filter(n => !isNaN(n)));
       const stops = curr.filter(n => n && isNaN(n));
       const row = stops.concat(distance);
@@ -69,81 +74,85 @@ class App extends Component<{}, IState> {
   getFastestRoute = () =>
     this.setState(prevState => ({ fastest: prevState.routes[0] }));
 
+  toggleToolTip = (_, stop) => {
+    this.setState({
+      toolTip: {
+        [stop]: !R.prop(stop, this.state.toolTip)
+      }
+    });
+  };
+
   render() {
+    const matchNode = node =>
+      graph.edges.reduce((c, v) => {
+        if (node !== v.from) return c;
+
+        return c.concat(v);
+      }, []);
+
     return (
       <div className="App">
         <h3>Select start / end for route:</h3>
 
-        <CytoscapeComponent
-          stylesheet={[
-            {
-              selector: "node",
-              style: {
-                content: "data(data.task)",
-                width: 20,
-                height: 20,
-                shape: "rectangle"
-              }
-            },
-            {
-              selector: "edge",
-              style: {
-                width: 1,
-                "curve-style": "bezier",
-                "target-arrow-shape": "triangle",
-                "line-color": "#ccc",
-                "target-arrow-color": "red"
-              }
-            }
-          ]}
-          cy={cyRef => {
-            this.cyRef = cyRef;
-          }}
-          zoomingEnabled={false}
-          autoungrabify={true}
-          layout={{ name: "random" }}
-          style={{ width: "100%", height: "400px" }}
-          elements={elements}
-        />
+        <div className="route__graph">
+          {graph.nodes.map((node, i) => {
+            const activeStart = R.hasPath(["start", node.id], {
+              ...this.state.active
+            });
+            const activeEnd = R.hasPath(["end", node.id], {
+              ...this.state.active
+            });
 
-        <div style={{ marginBottom: "2em" }}></div>
+            return (
+              <div key={node.id} style={{ position: "relative" }}>
+                <RouteEnd
+                  stop={node.id}
+                  active={activeEnd || activeStart}
+                  toggleToolTip={this.toggleToolTip}
+                  onClickRouteEnd={this.onClickRouteEnd}
+                  toolTip={this.state.toolTip}
+                />
 
-        <div className="flex__inline">
-          <div style={{ flex: 1 }}>
-            {["start", "end"].map(position => {
-              return (
-                <div key={position} className="route__end">
-                  {Object.keys(adjacencyGraph).map((stop, i) => {
+                <span>
+                  {matchNode(node.label).map((edge, i) => {
+                    const path = R.intersection(this.state.fastest, [
+                      edge.from,
+                      edge.to
+                    ]);
+
                     return (
-                      <RouteEnd
-                        key={i}
-                        index={i}
-                        stop={stop}
-                        position={position}
-                        active={this.state.active[position][stop]}
-                        onClickRouteEnd={this.onClickRouteEnd}
-                      />
+                      <div key={i}>
+                        <LineTo
+                          className="route__edge"
+                          from={`route__option--${path && path[0]}`}
+                          to={`route__option--${path && path[1]}`}
+                          borderColor={"#9EFFE4"}
+                        />
+                        {/* <span>{edge.weight}</span> */}
+                      </div>
                     );
                   })}
-                </div>
-              );
-            })}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ width: "33.33%" }}>
+          <div>
+            Shortest route:{" "}
+            <h3 style={{ display: "inline-block" }}>
+              {R.last(this.state.fastest)}
+            </h3>
           </div>
 
-          <div style={{ width: "33.33%" }}>
-            <h3>Shortest route:</h3>
-
-            {R.dropLast(1, this.state.fastest).map((stop: any[], i: number) => {
-              console.log(stop);
-              return (
-                <div className="route__option" key={i}>
-                  <span>{stop}</span>
-                </div>
-              );
-            })}
-
-            <h3>Distance: {R.last(this.state.fastest)}</h3>
-          </div>
+          {R.dropLast(1, this.state.fastest).map((stop: any[], i: number) => {
+            return (
+              <div className="route__option" key={i}>
+                <span>{stop}</span>
+              </div>
+            );
+          })}
         </div>
 
         <h3>Possible routes:</h3>

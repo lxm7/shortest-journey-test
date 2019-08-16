@@ -1,22 +1,26 @@
-import React, { Component } from "react";
-// import cx from 'classnames';
+import React from "react";
+
+import ToolTip from "../ToolTip";
 import "./styles.css";
 
 const activeCss = active => (active ? "route__option--active" : "");
-const disableCss = disabled => (disabled ? "route__option--disabled" : "");
 
 const RouteEnd = ({
   stop,
   onClickRouteEnd,
-  position,
   active,
-  journeyIndex
+  toggleToolTip,
+  toolTip
 }) => (
   <div
-    className={`route__option ${activeCss(active)}`}
-    onClick={e => onClickRouteEnd(e, stop, position)}
+    className={`route__option route__option--${stop} ${activeCss(active)}`}
+    onClick={e => toggleToolTip(e, stop)}
   >
     {stop}
+
+    {toolTip && toolTip[stop] && (
+      <ToolTip onClickRouteEnd={onClickRouteEnd} stop={stop} />
+    )}
   </div>
 );
 
