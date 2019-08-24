@@ -1,29 +1,29 @@
-export type DistanceRow = {
-  start: string;
-  end: string;
-  distance: number;
-};
+// export type DistanceRow = {
+//   start: string;
+//   end: string;
+//   distance: number;
+// };
 
-export const distances: DistanceRow[] = [
-  { start: "A", end: "C", distance: 2 },
-  { start: "C", end: "D", distance: 1 },
-  { start: "C", end: "F", distance: 4 },
-  { start: "B", end: "D", distance: 4 },
-  { start: "B", end: "E", distance: 7 },
-  { start: "D", end: "F", distance: 1 },
-  { start: "D", end: "G", distance: 2 },
-  { start: "F", end: "G", distance: 3 },
-  { start: "G", end: "H", distance: 4 },
-  { start: "E", end: "H", distance: 10 }
-];
+// export const distances: DistanceRow[] = [
+//   { start: "A", end: "C", distance: 2 },
+//   { start: "C", end: "D", distance: 1 },
+//   { start: "C", end: "F", distance: 4 },
+//   { start: "B", end: "D", distance: 4 },
+//   { start: "B", end: "E", distance: 7 },
+//   { start: "D", end: "F", distance: 1 },
+//   { start: "D", end: "G", distance: 2 },
+//   { start: "F", end: "G", distance: 3 },
+//   { start: "G", end: "H", distance: 4 },
+//   { start: "E", end: "H", distance: 10 }
+// ];
 
-type Path = {
+export type Edge = {
   node: string;
   weight: number;
 };
 
 export type IAdjacencyGraph = {
-  [key in string]: Path[];
+  [key in string]: Edge[];
 };
 
 export const adjacencyGraph: IAdjacencyGraph = {
@@ -54,37 +54,12 @@ export const adjacencyGraph: IAdjacencyGraph = {
   H: [{ node: "G", weight: 4 }, { node: "E", weight: 10 }]
 };
 
-export const graph = {
-  nodes: [
-    { id: "A", label: "A", color: "red" },
-    { id: "B", label: "B", color: "red" },
-    { id: "C", label: "C", color: "red" },
-    { id: "D", label: "D", color: "red" },
-    { id: "E", label: "E", color: "red" },
-    { id: "F", label: "F", color: "red" },
-    { id: "G", label: "G", color: "red" },
-    { id: "H", label: "H", color: "red" }
-  ],
-  edges: [
-    { from: "A", to: "C", weight: 2 },
-    { from: "B", to: "D", weight: 4 },
-    { from: "B", to: "E", weight: 7 },
-    { from: "C", to: "A", weight: 2 },
-    { from: "C", to: "D", weight: 1 },
-    { from: "C", to: "F", weight: 4 },
-    { from: "D", to: "C", weight: 1 },
-    { from: "D", to: "B", weight: 4 },
-    { from: "D", to: "F", weight: 1 },
-    { from: "D", to: "G", weight: 2 },
-    { from: "E", to: "B", weight: 7 },
-    { from: "E", to: "H", weight: 10 },
-    { from: "F", to: "C", weight: 4 },
-    { from: "F", to: "D", weight: 1 },
-    { from: "F", to: "G", weight: 3 },
-    { from: "G", to: "D", weight: 2 },
-    { from: "G", to: "F", weight: 3 },
-    { from: "G", to: "H", weight: 4 },
-    { from: "H", to: "G", weight: 4 },
-    { from: "H", to: "E", weight: 10 }
-  ]
+export type Stop = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+
+export type RouteOption = {
+  [key in Stop]: string;
 };
+
+export type Entity = string | number | symbol;
+
+export type Route = Entity[];

@@ -9,33 +9,31 @@ export type RouteListProps = {
   ) => void;
 };
 
-const style = {
-  toolTip: {
-    background: "#eee",
-    width: "100px",
-    textAlign: "center",
-    color: "white",
-    position: "absolute",
-    bottom: "49px",
-    left: "100%",
-    padding: ".5em"
-  },
-  option: {
-    background: "#ff5a5f",
-    display: "block",
-    borderRadius: "3px",
-    padding: ".5em",
-    marginBottom: "0.3em"
-  }
+// TODO use package `typestyle` hack a type to handle nested styles object
+const toolTipStyle: React.CSSProperties = {
+  background: "#eee",
+  width: "100px",
+  textAlign: "center",
+  color: "white",
+  position: "absolute",
+  bottom: "49px",
+  left: "100%",
+  padding: ".5em"
+};
+
+const optionStyle: React.CSSProperties = {
+  background: "#ff5a5f",
+  display: "block",
+  borderRadius: "3px",
+  padding: ".5em",
+  marginBottom: "0.3em"
 };
 
 const ToolTip: React.SFC<RouteListProps> = ({ onClickRouteEnd, stop }) => (
-  <div
-    style={style.toolTip} // @tslint:disable-line
-  >
+  <div style={toolTipStyle}>
     {["start", "end"].map(position => (
       <span
-        style={style.option}
+        style={optionStyle}
         key={position}
         onClick={e => onClickRouteEnd(e, stop, position)}
       >

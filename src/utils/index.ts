@@ -1,13 +1,15 @@
 import * as R from "ramda";
 
-import { IAdjacencyGraph, distances, DistanceRow } from "../constants";
+import {
+  IAdjacencyGraph,
+  RouteOption,
+  Edge,
+  Stop,
+  Entity,
+  Route
+} from "../constants";
+import { IState, StopObjectWithValue } from "../pages/App";
 import * as utils from "./";
-
-type Route = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
-
-export type RouteOption = {
-  [key in Route]: string;
-};
 
 /*
  * Function appendRouteToAllPossibleRoutes - Accumulates generated routes and queues them up into our list of
@@ -29,8 +31,9 @@ export const appendRouteToAllPossibleRoutes = (
  * @param {string} start - start destination for subsequent stop
  * @return {array} returns an array of arrays of newRoutes
  */
-export const buildRoutePath = (route: RouteOption[], start: string, weight) =>
-  route.concat([start], [weight]);
+export const buildRoutePath = (route: Route, start: Stop, weight?: number) =>
+  route.concat([start], [weight as number]);
+
 /*
  * Function findAllRoutes - Takes several params, introspects routeGraph and gathers all possible routes
  * between selected start and end
@@ -43,14 +46,13 @@ export const buildRoutePath = (route: RouteOption[], start: string, weight) =>
  */
 export const findAllRoutes = (
   graph: IAdjacencyGraph,
-  start: string,
-  end: string,
-  route = [],
+  start: Stop,
+  end: Stop,
+  route = [] as Route,
   weight?: number
 ) => {
   // build route with each recursive start point
   route = buildRoutePath(route, start, weight);
-
   // if our start route/letter is also at the end return current route
   if (start === end) {
     return [route];
@@ -67,14 +69,16 @@ export const findAllRoutes = (
   }
 
   const allroutes: RouteOption[] = [];
+  let totalDistance = [] as any;
 
-  graph[start].map(node => {
+  graph[start].map((node: Edge) => {
+    const nodeEdge: string = node.node;
     // eslint-disable-line
-    if (route.includes(node.node)) return [];
-    // import itself via utils.findAllRoutes for recursive jest test
+    if (route.includes(nodeEdge)) return [];
+
     const newroutes = utils.findAllRoutes(
       graph,
-      node.node,
+      nodeEdge as Stop,
       end,
       route,
       node.weight
@@ -85,14 +89,69 @@ export const findAllRoutes = (
   return allroutes;
 };
 
-const getTotalDistanceFromRoute = curr => R.sum(curr.filter(n => !isNaN(n)));
-const getStopsFromRoute = curr => curr.filter(n => n && isNaN(n));
+/*
+ * Function activeStop
+ *
+ * @param {node} node
+ * @param {string} position
+ * @param {object} activeState
+ * @return {boolean}
+ */
+export const isActiveStop = (
+  node: string,
+  position: string,
+  activeState: IState["active"]
+) =>
+  R.hasPath([position, node], {
+    ...activeState
+  });
 
 /*
- * Function addTotalDistanceFromRoutes - maps all routes to start operating on a single route
+ * Function distance
  *
- * @param {array} route - all stops within a route.
- * @return {number} totals all distances bewteen stops in a given route
+ * @param {array} fastestRoute
+ * @return {number}
  */
-export const addTotalDistanceFromRoutes = route =>
-  route.reduce((acc, opt) => acc + Number(opt.distance), 0);
+export const getDistance = (route: Route) => R.last(route);
+
+/*
+ * Function stops
+ *
+ * @param {array} fastestRoute
+ * @return {array} list of stops without the distance at the end
+ */
+export const getStops = (route: Route) => R.dropLast(1, route);
+
+/*
+ * Function path
+ *
+ * @param {array} fastestRoute
+ * @param {edge} edge
+ * @return {array} list of stops without the distance at the end
+ */
+export const getCurrentPath = (route: Route, node: string, edge: Edge) =>
+  R.intersection(route, [node, edge.node]);
+
+/*
+ * Function getObjectKeyAsValue
+ *
+ * @param {Stop} stop
+ * @return {string}
+ */
+export const getObjectKeyAsValue = (stop: StopObjectWithValue) =>
+  R.keys(stop)[0];
+
+/*
+ * Function transformRoutes
+ *
+ * @param {Stop} routesRaw
+ * @return {array}
+ */
+export const transformRoutes = (routesRaw: any[]) =>
+  routesRaw.reduce((acc: any, curr: any[]) => {
+    // TODO - replace anys
+    const distance = R.sum(curr.filter((n: number) => !isNaN(n)));
+    const stops = curr.filter((n: number) => n && isNaN(n));
+    const row = stops.concat(distance);
+    return [...acc, row];
+  }, []);
